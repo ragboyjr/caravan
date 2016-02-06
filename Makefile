@@ -1,20 +1,26 @@
+IO_SRCS=$(addprefix src/io/, io.c unix.c)
+RES_SRCS=$(addprefix src/res/, path.c res.c)
+
+CARAVAN_SRCS=src/main.c
+
+ALL_SRCS=$(CARAVAN_SRCS) $(IO_SRCS) $(RES_SRCS)
 
 .PHONY: caravan
 
 caravan: bin/caravan
 
 clean:
-	rm -rf bin lib *.o src/*.o src/io/*.o src/res/*.o
+	rm -rf bin lib *.o $(ALL_SRCS:%.c=%.o)
 
-bin/caravan: src/main.o lib/libcaravanio.a lib/libcaravanres.a
+bin/caravan: $(CARAVAN_SRCS) lib/libcaravanio.a lib/libcaravanres.a
 	@mkdir -p bin
 	$(CC) -Llib  -lcaravanio -lcaravanres $< -o $@
 
-lib/libcaravanio.a: src/io/io.o src/io/unix.o
+lib/libcaravanio.a: $(IO_SRCS:%.c=%.o)
 	@mkdir -p lib
 	$(AR) -r $@ $^
 
-lib/libcaravanres.a: src/res/path.o src/res/res.o
+lib/libcaravanres.a: $(RES_SRCS:%.c=%.o)
 	@mkdir -p lib
 	$(AR) -r $@ $^
 
